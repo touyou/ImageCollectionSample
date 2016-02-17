@@ -12,6 +12,7 @@ class ImageCollectionViewController: UICollectionViewController {
     var selectedAPI: String!
     var searchWord: String!
     override func viewDidLoad() {
+        self.viewDidLoad()
         
     }
     
