@@ -12,12 +12,11 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
 
     @IBOutlet var choiceAPIPickerVIew: UIPickerView!
     @IBOutlet var searchWordField: UITextField!
-    var selectedAPI: String!
+    var selectedAPI: String = "Tiqav"
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        selectedAPI = ""
         choiceAPIPickerVIew.delegate = self
         choiceAPIPickerVIew.dataSource = self
     }
@@ -35,23 +34,23 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
         return 4
     }
     // PickerViewの選択肢の文字列
-    func pickerView(pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String! {
+    func pickerView(pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         return switchAPIString(row)
     }
     // 選ばれた選択肢に応じてどうするか
     func pickerView(pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        selectedAPI = switchAPIString(row)
+        self.selectedAPI = switchAPIString(row)
     }
     // どれが選ばれたか
     func switchAPIString(num: Int) -> String! {
         switch(num) {
-        case 1:
+        case 0:
             return "Tiqav"
-        case 2:
+        case 1:
             return "Twitter"
-        case 3:
+        case 2:
             return "Pixaboy"
-        case 4:
+        case 3:
             return "Google"
         default:
             return ""
@@ -59,6 +58,8 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
     }
     // searchButtonをおした時
     @IBAction func pushSearchButton() {
+        print(selectedAPI)
+        print(searchWordField.text)
         if selectedAPI == "" || searchWordField.text == nil {
             simpleAlert("検索ワードが記入されているか確認の上もう一度お試しください。")
         }
@@ -69,7 +70,7 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
         if (segue.identifier == "toCollectView") {
             let collectView = segue.destinationViewController as! ImageCollectionViewController
             collectView.selectedAPI = self.selectedAPI
-            collectView.searchWord = searchWordField.text!
+            collectView.searchWord = self.searchWordField.text!
         }
     }
     
