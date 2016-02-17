@@ -100,8 +100,15 @@
                                             </subviews>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                         </view>
+                                        <connections>
+                                            <outlet property="imageView" destination="4YF-hP-tgR" id="MaT-jH-XfR"/>
+                                        </connections>
                                     </collectionViewCell>
                                 </cells>
+                                <connections>
+                                    <outlet property="dataSource" destination="Mzy-AR-arn" id="1w2-bS-Dlm"/>
+                                    <outlet property="delegate" destination="Mzy-AR-arn" id="KKA-Sb-xXt"/>
+                                </connections>
                             </collectionView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
