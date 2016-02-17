@@ -16,10 +16,10 @@ class ImageCollectionViewController: UIViewController, UICollectionViewDelegate 
     var selectedAPI: String = ""
     var searchWord: String = ""
     var images: [UIImage] = []
+    var reqs: [NSURLRequest] = []
     
     override func viewDidLoad() {
         // self.viewDidLoad()
-        imageCollectionView.delegate = self
         
         switch(selectedAPI) {
             case "Tiqav":
@@ -39,16 +39,32 @@ class ImageCollectionViewController: UIViewController, UICollectionViewDelegate 
             
         }
         
+        imageCollectionView.delegate = self
     }
     
     func tiqav() {
         // 日本語対応
         let text = "http://api.tiqav.com/search.json?q="+searchWord
-        getImage(encodeURL(text), key: "source_url")
+        // source_urlの画像は大体消されてた
+        Alamofire.request(.GET, encodeURL(text), parameters: nil).responseJSON(completionHandler: {
+            response in
+            // print(response.result.value)
+            guard let object = response.result.value else {
+                return
+            }
+            let json = JSON(object)
+            json.forEach({(_, json) in
+                let url = NSURL(string: "http://img.tiqav.com/" + String(json["id"]) + "." + json["ext"].string!)
+                let req = NSURLRequest(URL: url!)
+                self.reqs.append(req)
+            })
+        })
+        print(images.count)
     }
     func twitter() {
     }
     func pixaboy() {
+        // 多分英語のみでおもしろ画像少ない△
         let text = "https://pixaboy.com/api/?key="+APIKeyList.APIKey.pixaboy()+"&q="+searchWord+"&image_type=photo"
         print(text)
         getImage(encodeURL(text), key: "previewURL")
@@ -60,10 +76,8 @@ class ImageCollectionViewController: UIViewController, UICollectionViewDelegate 
     }
     // 画像をJSONから取得して処理するところ、urlと画像のurlが入るキーを指定できる
     func getImage(url: NSURL, key: String) {
-        Alamofire.request(.GET, url).responseJSON(completionHandler: {
+        Alamofire.request(.GET, url, parameters: nil).responseJSON(completionHandler: {
             response in
-            print("clear")
-            print(response)
             guard let object = response.result.value else {
                 return
             }
@@ -72,10 +86,7 @@ class ImageCollectionViewController: UIViewController, UICollectionViewDelegate 
                 let url = NSURL(string: json[key].string!)
                 print(json[key].string)
                 let req = NSURLRequest(URL: url!)
-                NSURLConnection.sendAsynchronousRequest(req, queue: NSOperationQueue.mainQueue(), completionHandler: {(res, data, err) in
-                    let image = UIImage(data: data!)
-                    self.images.append(self.cropThumbnailImage(image!, w: 100, h: 100))
-                })
+                self.reqs.append(req)
             })
         })
         print(images.count)
@@ -91,12 +102,16 @@ class ImageCollectionViewController: UIViewController, UICollectionViewDelegate 
     }
     // 数
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return images.count
+        print(reqs.count)
+        return reqs.count
     }
     // 入れるもの
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         let cell: CustomCell = collectionView.dequeueReusableCellWithReuseIdentifier("cell", forIndexPath: indexPath) as! CustomCell
-        cell.imageView.image = self.images[Int(indexPath.row)]
+        NSURLConnection.sendAsynchronousRequest(reqs[Int(indexPath.row)], queue: NSOperationQueue.mainQueue(), completionHandler: {(res, data, err) in
+            let image = UIImage(data: data!)
+            cell.imageView.image = self.cropThumbnailImage(image!, w: 100, h: 100)
+        })
         return cell
     }
     
