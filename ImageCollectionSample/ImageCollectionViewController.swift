@@ -41,6 +41,7 @@ class ImageCollectionViewController: UIViewController, UICollectionViewDataSourc
         
         imageCollectionView.delegate = self
         imageCollectionView.dataSource = self
+        // let nib =
     }
     
     func tiqav() {
